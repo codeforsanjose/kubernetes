@@ -10,7 +10,6 @@ resource "kubernetes_namespace" "nginx_ingress" {
 resource "helm_release" "nginx_ingress" {
   name             = "nginx-ingress-controller"
   namespace        = kubernetes_namespace.nginx_ingress.metadata[0].name
-  create_namespace = false
 
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
@@ -55,10 +54,10 @@ resource "helm_release" "nginx_ingress" {
     name  = "defaultBackend.enabled"
     value = "true"
   }
-  set {
-    name  = "defaultBackend.image.image"
-    value = "defaultbackend-arm64"
-  }
+  # set {
+  #   name  = "defaultBackend.image.image"
+  #   value = "defaultbackend-arm64"
+  # }
   set {
     name  = "controller.config.http-snippet"
     value = <<-EOT
@@ -103,9 +102,4 @@ resource "helm_release" "nginx_ingress" {
   #   name  = "controller.config.error-log-level"
   #   value = "debug"
   # }
-
-  depends_on = [kubernetes_namespace.nginx_ingress]
-  lifecycle {
-    ignore_changes = [metadata]
-  }
 }
