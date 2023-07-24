@@ -84,10 +84,12 @@ resource "kubectl_manifest" "karpenter_provisioner" {
           values: ["on-demand"]
         - key: "kubernetes.io/arch"
           operator: In
-          values: ["amd64", "arm64"]
+          values: ["amd64"]
+          # values: ["amd64", "arm64"]
         - key: "karpenter.k8s.aws/instance-family"
           operator: In
-          values: ["t3a", "t4g"]
+          values: ["t3a"]
+          # values: ["t3a", "t4g"]
       limits:
         resources:
           cpu: 100

@@ -57,6 +57,7 @@ locals {
   cluster_version             = "1.27"
   eks-cluster-admin-role-name = "iam-user-group-admin"
   nginx_fullname_override     = "nginx-ingress"
+  kubernetes_dashboard_url    = "k8s-dashboard.opensourcesanjose.org"
 
   cluster_admin_users = [
     "darren",

@@ -4,9 +4,6 @@ variable "doppler_workspace_id" {
 }
 
 resource "helm_release" "doppler-operator-system" {
-  namespace        = "doppler-operator-system"
-  create_namespace = true
-
   name       = "doppler-kubernetes-operator"
   repository = "https://helm.doppler.com"
   chart      = "doppler-kubernetes-operator"
