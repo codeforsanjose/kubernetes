@@ -72,7 +72,7 @@ module "eks" {
       ]
     },
     {
-      rolearn  = "arn:aws:iam::402056942761:role/github-actions"
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/github-actions"
       username = "github-actions"
       groups = [
         "system:masters",
