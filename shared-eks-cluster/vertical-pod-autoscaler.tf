@@ -1,28 +1,31 @@
-resource "helm_release" "metrics-server" {
-  namespace        = "metrics-server"
-  create_namespace = true
+# Vertical Pod Autoscaler
+# https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler
 
-  name       = "metrics-server"
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "metrics-server"
+# resource "helm_release" "metrics-server" {
+#   namespace        = "metrics-server"
+#   create_namespace = true
 
-  set {
-    name  = "apiService.create"
-    value = "true"
-  }
-  set {
-    name  = "rbac.create=true"
-    value = "true"
-  }
-}
+#   name       = "metrics-server"
+#   repository = "https://charts.bitnami.com/bitnami"
+#   chart      = "metrics-server"
 
-resource "helm_release" "vpa" {
-  namespace        = "vpa"
-  create_namespace = true
+#   set {
+#     name  = "apiService.create"
+#     value = "true"
+#   }
+#   set {
+#     name  = "rbac.create=true"
+#     value = "true"
+#   }
+# }
 
-  name       = "fairwinds-stable"
-  repository = "https://charts.fairwinds.com/stable"
-  chart      = "vpa"
+# resource "helm_release" "vpa" {
+#   namespace        = "vpa"
+#   create_namespace = true
 
-  depends_on = [helm_release.metrics-server]
-}
+#   name       = "fairwinds-stable"
+#   repository = "https://charts.fairwinds.com/stable"
+#   chart      = "vpa"
+
+#   depends_on = [helm_release.metrics-server]
+# }

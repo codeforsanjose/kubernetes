@@ -19,13 +19,12 @@ resource "helm_release" "karpenter" {
   name       = "karpenter"
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter"
-  version    = "v0.21.1"
+  version    = "v0.29.2"
 
   set {
     name  = "settings.aws.clusterName"
     value = module.eks.cluster_name
   }
-
   set {
     name  = "settings.aws.clusterEndpoint"
     value = module.eks.cluster_endpoint
@@ -46,6 +45,27 @@ resource "helm_release" "karpenter" {
     value = module.karpenter.queue_name
   }
 
+  set {
+    name  = "replicas"
+    value = "1"
+  }
+  set {
+    name  = "controller.resources.requests.cpu"
+    value = "0.25"
+  }
+  set {
+    name  = "controller.resources.requests.memory"
+    value = "256M"
+  }
+  set {
+    name  = "controller.resources.limits.cpu"
+    value = "0.25"
+  }
+  set {
+    name  = "controller.resources.limits.memory"
+    value = "256M"
+  }
+
   lifecycle {
     ignore_changes = [repository_password]
   }
@@ -61,22 +81,22 @@ resource "kubectl_manifest" "karpenter_provisioner" {
       requirements:
         - key: karpenter.sh/capacity-type
           operator: In
-          values: ["spot", "on-demand"]
+          values: ["on-demand"]
         - key: "kubernetes.io/arch"
           operator: In
-          values: ["amd64"]
+          values: ["amd64", "arm64"]
         - key: "karpenter.k8s.aws/instance-family"
           operator: In
-          values: ["t3", "r6in"]
+          values: ["t3a", "t4g"]
       limits:
         resources:
-          cpu: 1000
-          memory: 1000Gi
+          cpu: 100
+          memory: 100Gi
       providerRef:
         name: default
       consolidation:
         enabled: true
-      ttlSecondsUntilExpired: 604800
+      ttlSecondsUntilExpired: 86400
   YAML
 
   depends_on = [
@@ -97,16 +117,14 @@ resource "kubectl_manifest" "karpenter_node_template" {
         karpenter.sh/discovery: ${module.eks.cluster_name}
       tags:
         karpenter.sh/discovery: ${module.eks.cluster_name}
+        Name: eks-${local.name}
       blockDeviceMappings:
         - deviceName: /dev/xvda
           ebs:
-            volumeSize: 500Gi
+            volumeSize: 100Gi
             volumeType: gp3
-            iops: 10000
             encrypted: true
             deleteOnTermination: true
-            throughput: 250
-      detailedMonitoring: true
   YAML
 
   depends_on = [

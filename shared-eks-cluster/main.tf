@@ -50,13 +50,13 @@ locals {
 
   name = "${local.application}-${local.environment}"
 
-  region   = "us-west-1"
+  region   = "us-west-2"
   vpc_cidr = "10.1.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 2)
 
   cluster_version             = "1.27"
   eks-cluster-admin-role-name = "iam-user-group-admin"
-  nginx_fullname_override = "nginx-ingress"
+  nginx_fullname_override     = "nginx-ingress"
 
   cluster_admin_users = [
     "darren",

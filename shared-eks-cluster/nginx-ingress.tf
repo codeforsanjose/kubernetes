@@ -35,25 +35,29 @@ resource "helm_release" "nginx_ingress" {
     name  = "controller.config.use-forwarded-headers"
     value = "true"
   }
+  # set {
+  #   name  = "controller.config.proxy-body-size"
+  #   value = "100m"
+  # }
   set {
-    name  = "controller.config.proxy-body-size"
+    name  = "controller.resources.requests.cpu"
     value = "100m"
   }
   set {
-    name  = "controller.resources.requests.cpu"
-    value = "1000m"
-  }
-  set {
     name  = "controller.resources.requests.memory"
-    value = "1024Mi"
+    value = "150Mi"
   }
   set {
     name  = "controller.replicaCount"
-    value = "2"
+    value = "1"
   }
   set {
     name  = "defaultBackend.enabled"
     value = "true"
+  }
+  set {
+    name  = "defaultBackend.image.image"
+    value = "defaultbackend-arm64"
   }
   set {
     name  = "controller.config.http-snippet"
@@ -77,6 +81,24 @@ resource "helm_release" "nginx_ingress" {
     name  = "controller.config.enable-access-log-for-default-backend"
     value = "true"
   }
+
+  # ModSecurity
+  set {
+    name  = "controller.config.enable-modsecurity"
+    value = "true"
+  }
+  set {
+    name  = "controller.config.enable-owasp-modsecurity-crs"
+    value = "true"
+  }
+  set {
+    name  = "controller.config.modsecurity-snippet"
+    value = <<-EOT
+      SecRuleEngine On
+      SecStatusEngine Off
+    EOT
+  }
+
   # set {
   #   name  = "controller.config.error-log-level"
   #   value = "debug"
