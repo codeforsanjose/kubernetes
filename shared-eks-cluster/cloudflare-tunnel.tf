@@ -21,7 +21,7 @@ resource "kubernetes_namespace" "cloudflared" {
 
 resource "kubernetes_secret" "cloudflared_tunnel_token" {
   metadata {
-    name = "cloudflared"
+    name      = "cloudflared"
     namespace = kubernetes_namespace.cloudflared.metadata[0].name
   }
 

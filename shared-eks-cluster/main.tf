@@ -56,7 +56,7 @@ locals {
 
   cluster_version             = "1.27"
   eks-cluster-admin-role-name = "iam-user-group-admin"
-  nginx_fullname_override = "nginx-ingress"
+  nginx_fullname_override     = "nginx-ingress"
 
   cluster_admin_users = [
     "darren",

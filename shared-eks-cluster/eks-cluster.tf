@@ -23,7 +23,7 @@ module "eks" {
     kube-proxy = {
       most_recent = true
     }
-    vpc-cni    = {
+    vpc-cni = {
       most_recent = true
     }
     coredns = {
@@ -44,7 +44,7 @@ module "eks" {
             memory = "256M"
           }
           requests = {
-            cpu = "0.25"
+            cpu    = "0.25"
             memory = "256M"
           }
         }
