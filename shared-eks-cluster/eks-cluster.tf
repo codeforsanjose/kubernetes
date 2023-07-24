@@ -19,9 +19,15 @@ module "eks" {
   cluster_endpoint_public_access = true
 
   cluster_addons = {
-    kube-proxy = {}
-    vpc-cni    = {}
+    # aws-ebs-csi-driver = {}
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni    = {
+      most_recent = true
+    }
     coredns = {
+      most_recent = true
       configuration_values = jsonencode({
         computeType = "Fargate"
         # Ensure that we fully utilize the minimum amount of resources that are supplied by
@@ -39,8 +45,6 @@ module "eks" {
           }
           requests = {
             cpu = "0.25"
-            # We are targetting the smallest Task size of 512Mb, so we subtract 256Mb from the
-            # request/limit to ensure we can fit within that task
             memory = "256M"
           }
         }
