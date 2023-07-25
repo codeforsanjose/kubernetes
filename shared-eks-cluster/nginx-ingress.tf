@@ -82,21 +82,21 @@ resource "helm_release" "nginx_ingress" {
   }
 
   # ModSecurity
-  set {
-    name  = "controller.config.enable-modsecurity"
-    value = "true"
-  }
-  set {
-    name  = "controller.config.enable-owasp-modsecurity-crs"
-    value = "true"
-  }
-  set {
-    name  = "controller.config.modsecurity-snippet"
-    value = <<-EOT
-      SecRuleEngine On
-      SecStatusEngine Off
-    EOT
-  }
+  # set {
+  #   name  = "controller.config.enable-modsecurity"
+  #   value = "true"
+  # }
+  # set {
+  #   name  = "controller.config.enable-owasp-modsecurity-crs"
+  #   value = "true"
+  # }
+  # set {
+  #   name  = "controller.config.modsecurity-snippet"
+  #   value = <<-EOT
+  #     SecRuleEngine On
+  #     SecStatusEngine Off
+  #   EOT
+  # }
 
   # set {
   #   name  = "controller.config.error-log-level"
