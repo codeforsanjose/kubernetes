@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+    name: heartofthevalley-prod
+    namespace: argocd
+spec:
+    project: workflows
+    source:
+        repoURL: https://github.com/codeforsanjose/kubernetes.git
+        path: argocd/heartofthevalley
+        targetRevision: HEAD
+    helm:
+        valueFiles:
+          - prod.yaml
+    destination:
+        server: https://kubernetes.default.svc
+        namespace: heartofthevalley-prod
+    syncPolicy:
+        automated:
+            prune: true
+            selfHeal: true
+        retry:
+            limit: 5
+            backoff:
+                duration: 5s
+                factor: 2
+                maxDuration: 3m

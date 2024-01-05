@@ -1,0 +1,123 @@
+{{- define "webs" -}}
+{{- range $web := $.Values.webs }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $web.name }}
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    secrets.doppler.com/reload: 'true'
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $web.name }}
+  replicas: {{ $web.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $web.name }}
+    spec:
+      serviceAccountName: {{ .Values.serviceaccount.name }}
+      containers:
+      - image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        name: {{ $web.name }}
+        command:
+          {{- range $web.command }}
+          - {{ . }}
+          {{- end }}
+        resources:
+          limits:
+            cpu: {{ $web.cpu.limit }}
+            memory: {{ $web.memory.limit }}
+          requests:
+            cpu: {{ $web.cpu.requests }}
+            memory: {{ $web.memory.requests }}
+        ports:
+        - containerPort: {{ $web.port }}
+        envFrom:
+        - secretRef:
+            name: {{ $.Values.doppler_secret_ref }}
+        env:
+        - name: SOURCE_MANIFEST
+          value: https://github.com/codeforsanjose/kubernetes
+        {{- range $.Values.env_overrides }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        {{- range $web.env_overrides }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        # livenessProbe:
+        #   exec:
+        #     command:
+        #       - curl
+        #       - http://localhost:5000/healthcheck
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 300
+      nodeSelector:
+        kubernetes.io/arch: {{ $web.arch | default "amd64" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $web.name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $web.name }}
+spec:
+  ports:
+    - port: 80
+      targetPort: {{ $web.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ $web.name }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $web.name }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ $web.dns.hostname }}
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $web.name }}
+              port:
+                number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $web.name }}-redirect
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/permanent-redirect: {{ $web.dns.hostname }}$request_uri
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: www.{{ $web.dns.hostname }}
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $web.name }}
+              port:
+                number: 80
+{{- end }}
+{{- end -}}

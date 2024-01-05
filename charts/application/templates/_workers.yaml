@@ -1,0 +1,58 @@
+{{- define "workers" -}}
+{{- range $worker := $.Values.workers }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $worker.name }}
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    secrets.doppler.com/reload: "{{ $.Values.auto_deploy_secret_update }}"
+    karpenter.sh/do-not-evict: "true"
+  labels:
+    app: {{ $worker.name }}
+spec:
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $worker.name }}
+  replicas: {{ $worker.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $worker.name }}
+    spec:
+      serviceAccountName: {{ $.Values.serviceaccount.name }}
+      containers:
+      - image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        name: {{ $worker.name }}
+        command:
+          {{- range $worker.command }}
+          - {{ . }}
+          {{- end }}
+        resources:
+          limits:
+            cpu: {{ $worker.cpu.limit }}
+            memory: {{ $worker.memory.limit }}
+          requests:
+            cpu: {{ $worker.cpu.requests }}
+            memory: {{ $worker.memory.requests }}
+        envFrom:
+        - secretRef:
+            name: {{ $.Values.doppler.secret_ref }}
+        env:
+        - name: SOURCE_MANIFEST
+          value: https://github.com/codeforsanjose/kubernetes
+        {{- range $.Values.env_overrides }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        {{- range $worker.env_overrides }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+      nodeSelector:
+        kubernetes.io/arch: {{ $worker.arch | default "amd64" }}
+{{- end }}
+{{- end -}}
