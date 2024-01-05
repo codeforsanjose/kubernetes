@@ -1,0 +1,64 @@
+{{- define "postgres" -}}
+{{- if .Values.postgres.create -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.nautical_codename }}-pg
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.nautical_codename }}-pg
+spec:
+  selector:
+    app: {{ .Values.nautical_codename }}-pg
+  ports:
+    - port: 5432
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.nautical_codename }}-pg
+  namespace: {{ .Values.namespace }}
+spec:
+  serviceName: {{ .Values.nautical_codename }}-pg
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.nautical_codename }}-pg
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.nautical_codename }}-pg
+    spec:
+      containers:
+        - name: {{ .Values.nautical_codename }}-pg
+          image: public.ecr.aws/docker/library/postgres:15-alpine
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.nautical_codename }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.nautical_codename }}
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
+            - name: POSTGRES_DB
+              value: {{ .Values.nautical_codename }}
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+              name: {{ .Values.nautical_codename }}-pg
+          volumeMounts:
+            - name: {{ .Values.nautical_codename }}-pv-claim
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Values.nautical_codename }}-pv-claim
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+{{- end }}
+{{- end -}}

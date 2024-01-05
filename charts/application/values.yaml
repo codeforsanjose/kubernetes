@@ -1,0 +1,47 @@
+# Intentionally commented
+# Example values.yaml
+
+# web:
+#   replicaCount: 1
+#   command: [/home/recentive/start_web]
+#   cpu:
+#     requests: 500m
+#     limit: 4000m
+#   memory:
+#     requests: 512Mi
+#     limit: 4096Mi
+#   port: 5000
+
+# worker:
+#   create: false
+#   replicaCount: 1
+#   command: [/home/recentive/start_worker]
+#   cpu:
+#     requests: 500m
+#     limit: 4000m
+#   memory:
+#     requests: 512Mi
+#     limit: 4096Mi
+
+# cronjobs:
+
+# postgres:
+#   - name: pg-dump
+#     suspend: true
+#     command: ["python", "-m", "scripts.postgres.dump"]
+#     schedule: "0 7 * * *"
+#     cpu:
+#       requests: 2000m
+#     memory:
+#       requests: 4096Mi
+#   - name: pg-restore
+#     suspend: true
+#     command: ["python", "-m", "scripts.postgres.restore"]
+#     schedule: "0 7 * * *"
+#     cpu:
+#       requests: 2000m
+#     memory:
+#       requests: 4096Mi
+
+# serviceaccount:
+#   create: false

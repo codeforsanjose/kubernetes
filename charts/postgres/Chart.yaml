@@ -1,0 +1,6 @@
+apiVersion: v2
+name: postgres
+description: This Chart defines a postgres deployment on EKS
+type: library
+version: 0.0.1
+icon: https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Postgresql_elephant.svg/180px-Postgresql_elephant.svg.png
